@@ -38,7 +38,7 @@ public class SkypickerHttpClient implements Closeable {
                 } else {
                     log.error("Received {} response with no body", statusLine);
                 }
-                throw new SkypickerException(statusLine.getStatusCode());
+                throw new SkypickerException(statusLine);
             }
 
         }

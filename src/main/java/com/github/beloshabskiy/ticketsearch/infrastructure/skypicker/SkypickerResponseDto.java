@@ -11,7 +11,7 @@ public class SkypickerResponseDto {
     private List<OptionDto> data;
 
     @Data
-    private static class OptionDto {
+    public static class OptionDto {
         private String flyFrom;
         private String flyTo;
         private String cityFrom;
@@ -25,7 +25,7 @@ public class SkypickerResponseDto {
     }
 
     @Data
-    private static class LegDto {
+    public static class LegDto {
         private String flyFrom;
         private String flyTo;
         private String cityFrom;
