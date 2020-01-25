@@ -1,7 +1,6 @@
 package com.github.beloshabskiy.ticketsearch.rest.flight;
 
 import lombok.AllArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,9 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class FlightsSearchController {
     private final FlightSearchRequestHandler handler;
+    private final FlightSearchRequestValidator validator;
 
     @PostMapping("/flights")
-    public FlightSearchResponse findTickets(@Validated @RequestBody FlightSearchRequest request) throws Exception {
+    public FlightSearchResponse findTickets(@RequestBody FlightSearchRequest request) throws Exception {
+        validator.validate(request);
         return handler.handle(request);
     }
 }

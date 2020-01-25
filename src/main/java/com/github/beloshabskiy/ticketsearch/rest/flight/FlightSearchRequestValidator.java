@@ -1,19 +1,46 @@
 package com.github.beloshabskiy.ticketsearch.rest.flight;
 
+import com.github.beloshabskiy.ticketsearch.rest.InvalidRequestException;
 import org.springframework.stereotype.Component;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+
+import java.time.DateTimeException;
+import java.time.format.DateTimeFormatter;
 
 @Component
-public class FlightSearchRequestValidator implements Validator {
+public class FlightSearchRequestValidator {
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    @Override
-    public boolean supports(Class<?> clazz) {
-        return FlightSearchRequest.class.equals(clazz);
+    public void validate(FlightSearchRequest request) {
+        if (request.getFrom() == null && request.getTo() == null) {
+            throw new InvalidRequestException("'from' and 'to' can't be both null");
+        }
+
+        if (dateFormatIsInvalid(request.getDateFrom())) {
+            throw new InvalidRequestException("'dateFrom' is invalid; expected 'dd/MM/yyyy', got " + request.getDateFrom());
+        }
+
+        if (dateFormatIsInvalid(request.getDateTo())) {
+            throw new InvalidRequestException("'dateFrom' is invalid; expected 'dd/MM/yyyy', got " + request.getDateTo());
+        }
+
+        if (dateFormatIsInvalid(request.getReturnDateFrom())) {
+            throw new InvalidRequestException("'returnDateFrom' is invalid; expected 'dd/MM/yyyy', got " + request.getReturnDateFrom());
+        }
+
+        if (dateFormatIsInvalid(request.getReturnDateTo())) {
+            throw new InvalidRequestException("'returnDateTo' is invalid; expected 'dd/MM/yyyy', got " + request.getReturnDateTo());
+        }
     }
 
-    @Override
-    public void validate(Object target, Errors errors) {
-        FlightSearchRequest request = (FlightSearchRequest) target;
+    private static boolean dateFormatIsInvalid(String date) {
+        if (date == null) {
+            return false;
+        }
+        try {
+            FORMATTER.parse(date);
+            return false;
+        } catch (DateTimeException e) {
+            return true;
+        }
     }
 }
