@@ -3,6 +3,7 @@ package com.github.beloshabskiy.ticketsearch.infrastructure.skypicker.configurat
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.beloshabskiy.ticketsearch.infrastructure.skypicker.SkypickerHttpClient;
+import com.github.beloshabskiy.ticketsearch.infrastructure.skypicker.SkypickerRequestMapper;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +26,14 @@ public class SkypickerClientConfiguration {
     }
 
     @Bean
+    public SkypickerRequestMapper requestMapper(@Value("${tss.skypicker.partner:picky}") String partner) {
+        return new SkypickerRequestMapper(partner);
+    }
+
+    @Bean
     public SkypickerHttpClient skypickerHttpClient(CloseableHttpClient httpClient,
-                                                   ObjectMapper objectMapper,
-                                                   @Value("${tss.skypicker.partner:picky}") String partner) {
-        return new SkypickerHttpClient(httpClient, objectMapper, partner);
+                                                   SkypickerRequestMapper requestMapper,
+                                                   ObjectMapper objectMapper) {
+        return new SkypickerHttpClient(httpClient, requestMapper, objectMapper);
     }
 }
