@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.2.4.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id "org.sonarqube" version "2.8"
 }
 
 group = 'com.github.beloshabskiy'
@@ -34,4 +35,11 @@ dependencies {
 test {
     reports.html.enabled = true
     useJUnitPlatform()
+}
+
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
 }

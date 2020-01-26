@@ -1,0 +1,24 @@
+language: java
+install: true
+
+os: linux
+dist: trusty
+jdk: oraclejdk11
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - "$HOME/.gradle/caches/"
+    - "$HOME/.gradle/wrapper/"
+
+addons:
+  sonarcloud:
+    organization: beloshabskiy-github
+    token:
+      secure: W6hbzv1Hs+Roma2ku9mIB7zdEJH9PYuDqFpFInFV7zEg1TrETpOWM7ikMl28oUoltXXkvtsq87D24Qm/d/ToVv46QwMgo7oy9L3IzSZeW1Mvkv0yE7V/GDDjDcg3gHRorVAUDxdDss0+fabklCuuX20xrZvv03MS5IEKFk95QwVaNeqTPZOWVClRBG2kSSeUhiil9G2YF8T128Xyksj++g6+IHKmq5R4BHd/lkDTrGPqmKYr1CGHYATdDabLDB3my78A/BYjOXN6f+oPjj2jJcv/bXpCvm+pCw9MKltVT8r8LVub6v2H+aw4fUumY7UCHWCErxW8Sy841A3uugVeID5ncgG8QPgOzvTheYqjbZ7GE2BRWmoAXVCpR3wz1N1D0ux2pcWAOUnGfSsEq+HIsLSfrHqSOW1dhddwCeEikAfxAZsuMIkdQ/36uMjBGKUT484SX4aZlbYiCLyq+JIVbk7KUPZW3Uu17WK3UTxpxtVWP0+0pSS+ZKuDGNY6r22YxUkIs180EvcARzp4JeDFynb3VCYad8sVf0qfb74VdRojhAbCh03AQTfeJ7g4ImwJKKVnELU+QPpenw6Rw0szCu5tpJ6pGsoIg62VUubu9ApLpxsm05EOvJsa9wUS6F575SJVPUSD5/tOB+CjPoPGKWya55NkcoKTF+5kfKVYZDM=
+
+script:
+  - ./gradlew build --scan --stacktrace sonarqube
