@@ -9,4 +9,8 @@ public class SkypickerException extends Exception {
     public SkypickerException(StatusLine statusLine) {
         super("Skypicker responses with " + statusLine);
     }
+
+    public SkypickerException(Throwable t) {
+        super(t);
+    }
 }

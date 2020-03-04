@@ -21,7 +21,7 @@ public class SkypickerHttpClient implements Closeable {
     private final SkypickerRequestMapper mapper;
     private final ObjectMapper objectMapper;
 
-    public SkypickerResponseDto sendRequest(SkypickerRequestDto request) throws IOException, SkypickerException {
+    public SkypickerResponseDto sendRequest(SkypickerRequestDto request) throws SkypickerException {
         HttpGet get = new HttpGet(mapper.toUriString(request));
         try (CloseableHttpResponse response = httpClient.execute(get)) {
             final StatusLine statusLine = response.getStatusLine();
@@ -36,7 +36,8 @@ public class SkypickerHttpClient implements Closeable {
                 }
                 throw new SkypickerException(statusLine);
             }
-
+        } catch (IOException e) {
+            throw new SkypickerException(e);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.github.beloshabskiy.ticketsearch.rest.flight;
 
+import com.github.beloshabskiy.ticketsearch.infrastructure.skypicker.SkypickerException;
 import com.github.beloshabskiy.ticketsearch.infrastructure.skypicker.SkypickerHttpClient;
 import com.github.beloshabskiy.ticketsearch.infrastructure.skypicker.SkypickerRequestDto;
 import com.github.beloshabskiy.ticketsearch.infrastructure.skypicker.SkypickerResponseDto;
@@ -12,7 +13,7 @@ public class FlightSearchRequestHandler {
     private final SkypickerHttpClient skypickerHttpClient;
     private final FlightRequestMapper mapper;
 
-    public FlightSearchResponse handle(FlightSearchRequest request) throws Exception {
+    public FlightSearchResponse handle(FlightSearchRequest request) throws SkypickerException {
         final SkypickerRequestDto requestDto = mapper.toSkypickerRequest(request);
         final SkypickerResponseDto responseDto = skypickerHttpClient.sendRequest(requestDto);
         return mapper.toDomainResponse(responseDto);
