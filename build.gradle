@@ -1,45 +1,41 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.2.4.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'org.springframework.boot' version '2.2.4.RELEASE' apply false
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE' apply false
     id "org.sonarqube" version "2.8"
 }
 
-group = 'com.github.beloshabskiy'
-version = '0.1-SNAPSHOT'
-sourceCompatibility = '11'
+allprojects {
+    apply plugin: 'java'
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
+    group = 'com.github.beloshabskiy'
+    version = '0.1-SNAPSHOT'
+    sourceCompatibility = '11'
+
+    repositories {
+        mavenCentral()
     }
-}
 
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-    implementation group: 'org.apache.httpcomponents', name: 'httpclient'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
-
-    compileOnly group: 'org.projectlombok', name: 'lombok'
-    annotationProcessor group: 'org.projectlombok', name: 'lombok'
-
-    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    dependencies {
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+        annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
     }
-}
 
-test {
-    reports.html.enabled = true
-    useJUnitPlatform()
-}
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
 
-if (hasProperty('buildScan')) {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
+    test {
+        reports.html.enabled = true
+        useJUnitPlatform()
+    }
+
+    if (hasProperty('buildScan')) {
+        buildScan {
+            termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+            termsOfServiceAgree = 'yes'
+        }
     }
 }

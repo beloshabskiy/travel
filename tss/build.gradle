@@ -1,0 +1,16 @@
+plugins {
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
+}
+
+description 'Ticket Search Service'
+
+dependencies {
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
