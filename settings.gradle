@@ -1,3 +1,4 @@
 rootProject.name = 'ticket-search'
 
-include 'tss'
+include ':tss'
+include ':tbs'
