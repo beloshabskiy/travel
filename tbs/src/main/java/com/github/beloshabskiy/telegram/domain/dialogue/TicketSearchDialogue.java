@@ -15,10 +15,18 @@ class TicketSearchDialogue {
         step = Step.INITIAL;
     }
 
+    String greeting() {
+        return "Привет! Я умею искать билеты. Введи '/start' в любой момент, чтобы начать диалог сначала";
+    }
+
     synchronized String initiate() {
         step = Step.FROM;
         builder = FlightSearchRequest.builder();
         return step.question;
+    }
+
+    synchronized boolean isNotStarted() {
+        return step == Step.INITIAL;
     }
 
     synchronized boolean isFinished() {
@@ -211,5 +219,10 @@ class TicketSearchDialogue {
     public static class Answer {
         private final String message;
         private final List<String> options;
+    }
+
+    @Override
+    public String toString() {
+        return step.toString();
     }
 }
