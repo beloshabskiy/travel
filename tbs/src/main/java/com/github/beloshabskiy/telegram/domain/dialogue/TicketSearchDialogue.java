@@ -3,6 +3,9 @@ package com.github.beloshabskiy.telegram.domain.dialogue;
 import com.github.beloshabskiy.ticketsearch.rest.flight.FlightSearchRequest;
 import lombok.Value;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -155,19 +158,19 @@ class TicketSearchDialogue {
         EXACT_DATE("Дата в формате dd/MM/yyyy?") {
             @Override
             boolean isValidAnswer(String answer) {
-                return answer != null && answer.matches("\\d{2}/\\d{2}/\\d{4}");
+                return isValidDate(answer);
             }
         },
         DATE_FROM("Начало диапазона в формате dd/MM/yyyy?") {
             @Override
             boolean isValidAnswer(String answer) {
-                return answer != null && answer.matches("\\d{2}/\\d{2}/\\d{4}");
+                return isValidDate(answer);
             }
         },
         DATE_TO("Конец диапазона в формате dd/MM/yyyy?") {
             @Override
             boolean isValidAnswer(String answer) {
-                return answer != null && answer.matches("\\d{2}/\\d{2}/\\d{4}");
+                return isValidDate(answer);
             }
         },
         ONE_WAY_OR_ROUND_TRIP("Обратный билет?", Arrays.asList("Да", "Нет")),
@@ -175,19 +178,19 @@ class TicketSearchDialogue {
         EXACT_RETURN_DATE("Дата в формате dd/MM/yyyy?") {
             @Override
             boolean isValidAnswer(String answer) {
-                return answer != null && answer.matches("\\d{2}/\\d{2}/\\d{4}");
+                return isValidDate(answer);
             }
         },
         RETURN_DATE_FROM("Начало диапазона в формате dd/MM/yyyy?") {
             @Override
             boolean isValidAnswer(String answer) {
-                return answer != null && answer.matches("\\d{2}/\\d{2}/\\d{4}");
+                return isValidDate(answer);
             }
         },
         RETURN_DATE_TO("Конец диапазона в формате dd/MM/yyyy?") {
             @Override
             boolean isValidAnswer(String answer) {
-                return answer != null && answer.matches("\\d{2}/\\d{2}/\\d{4}");
+                return isValidDate(answer);
             }
         },
         FINISHED("Ищу билеты");
@@ -212,6 +215,18 @@ class TicketSearchDialogue {
 
         boolean isValidAnswer(String answer) {
             return options.contains(answer);
+        }
+    }
+
+    private static boolean isValidDate(String input) {
+        if (input == null) {
+            return false;
+        }
+        try {
+            LocalDate.parse(input, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
         }
     }
 

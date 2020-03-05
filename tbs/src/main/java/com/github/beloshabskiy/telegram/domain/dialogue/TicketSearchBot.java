@@ -46,9 +46,9 @@ public class TicketSearchBot extends TelegramLongPollingSessionBot {
                 dialogue = new TicketSearchDialogue();
                 session.setAttribute("dialogue", dialogue);
             }
-            log.info("Incoming message from {}: {}, dialogue status: {}",
-                    update.getMessage().getFrom().getUserName(),
+            log.info("Incoming message {} from {}, dialogue status: {}",
                     update.getMessage().getText(),
+                    update.getMessage().getFrom(),
                     dialogue.toString()
             );
             if (dialogue.isNotStarted()) {
