@@ -40,7 +40,7 @@ class TicketSearchDialogue {
 
     synchronized FlightSearchRequest buildRequest() {
         if (isFinished()) {
-            return builder.build();
+            return builder.currency("RUB").limit(1).build();
         } else {
             throw new IllegalStateException("Dialogue is not finished yet");
         }

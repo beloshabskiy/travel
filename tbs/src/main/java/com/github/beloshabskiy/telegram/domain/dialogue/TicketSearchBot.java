@@ -1,5 +1,6 @@
 package com.github.beloshabskiy.telegram.domain.dialogue;
 
+import com.github.beloshabskiy.telegram.domain.dialogue.infrastructure.tss.TssClient;
 import com.github.beloshabskiy.ticketsearch.rest.flight.FlightSearchRequest;
 import com.github.beloshabskiy.ticketsearch.rest.flight.FlightSearchResponse;
 import lombok.Getter;
@@ -18,10 +19,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.session.TelegramLongPollingSessionBot;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Getter
@@ -65,9 +68,8 @@ public class TicketSearchBot extends TelegramLongPollingSessionBot {
             dialogue = new TicketSearchDialogue();
             session.setAttribute("dialogue", dialogue);
         }
-        log.info("Incoming message {} from {}, dialogue status: {}",
+        log.info("Incoming message {}, dialogue status: {}",
                 update.getMessage().getText(),
-                update.getMessage().getFrom().getId(),
                 dialogue.toString()
         );
         if (dialogue.isNotStarted()) {
@@ -89,8 +91,23 @@ public class TicketSearchBot extends TelegramLongPollingSessionBot {
         );
     }
 
-    private String format(FlightSearchResponse response) {
-        return response.toString();
+    private String format(FlightSearchResponse response) { // TODO extract
+        if (response.getOptions().isEmpty()) {
+            return "По вашему запросу ничего не найдено";
+        } else {
+            final FlightSearchResponse.Option option = response.getOptions().get(0);
+            return MessageFormat.format(
+                    "Самый дешёвый билет:\n{0} {1}\n{2} {3}\n{4}->{5}\n{6} {7}",
+                    response.getCurrency(),
+                    option.getPrice(),
+                    option.getCityFrom(),
+                    option.getRoute().get(0).getDeparture(),
+                    option.getFlyFrom(),
+                    option.getRoute().stream().map(FlightSearchResponse.Leg::getFlyTo).collect(Collectors.joining("->")),
+                    option.getCityTo(),
+                    option.getArrival()
+            );
+        }
     }
 
     private void sendMessage(Message message, String text) {
