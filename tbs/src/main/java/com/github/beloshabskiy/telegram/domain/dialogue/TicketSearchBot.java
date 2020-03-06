@@ -25,6 +25,7 @@ import java.util.Optional;
 @Getter
 @Component
 public class TicketSearchBot extends TelegramLongPollingSessionBot {
+    private static final String DIALOGUE_SESSION_KEY = "dialogue";
     private final String botUsername;
     private final String botToken;
     private final TssClient tssClient;
@@ -40,7 +41,7 @@ public class TicketSearchBot extends TelegramLongPollingSessionBot {
     @Override
     public void onUpdateReceived(Update update, Optional<Session> botSession) {
         botSession.ifPresent(session -> {
-            TicketSearchDialogue dialogue = (TicketSearchDialogue) session.getAttribute("dialogue");
+            TicketSearchDialogue dialogue = (TicketSearchDialogue) session.getAttribute(DIALOGUE_SESSION_KEY);
             final String userInput = update.getMessage().getText();
             if (dialogue == null || "/start".equals(userInput)) {
                 dialogue = new TicketSearchDialogue();

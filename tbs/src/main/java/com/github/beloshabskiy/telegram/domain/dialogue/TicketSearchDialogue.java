@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 
 class TicketSearchDialogue {
+    private static final String GREETING = "Привет! Я умею искать билеты. Введи '/start' в любой момент, чтобы начать диалог сначала";
+
     private FlightSearchRequest.FlightSearchRequestBuilder builder;
     private Step step;
 
@@ -19,7 +21,7 @@ class TicketSearchDialogue {
     }
 
     String greeting() {
-        return "Привет! Я умею искать билеты. Введи '/start' в любой момент, чтобы начать диалог сначала";
+        return GREETING;
     }
 
     synchronized String initiate() {
@@ -67,7 +69,7 @@ class TicketSearchDialogue {
                     builder.to(null);
                     step = Step.DATE_OPTIONS;
                 } else {
-                    throw new IllegalStateException("Expected one of " + step.options + ", got " + userMessage);
+                    throw unexpectedUserInput(step, userMessage);
                 }
                 break;
             case TO:
@@ -80,7 +82,7 @@ class TicketSearchDialogue {
                 } else if (step.options.get(1).equals(userMessage)) {
                     step = Step.DATE_FROM;
                 } else {
-                    throw new IllegalStateException("Expected one of " + step.options + ", got " + userMessage);
+                    throw unexpectedUserInput(step, userMessage);
                 }
                 break;
             case EXACT_DATE:
@@ -102,7 +104,7 @@ class TicketSearchDialogue {
                 } else if (step.options.get(1).equals(userMessage)) {
                     step = Step.FINISHED;
                 } else {
-                    throw new IllegalStateException("Expected one of " + step.options + ", got " + userMessage);
+                    throw unexpectedUserInput(step, userMessage);
                 }
                 break;
             case RETURN_DATE_OPTIONS:
@@ -111,7 +113,7 @@ class TicketSearchDialogue {
                 } else if (step.options.get(1).equals(userMessage)) {
                     step = Step.RETURN_DATE_FROM;
                 } else {
-                    throw new IllegalStateException("Expected one of " + step.options + ", got " + userMessage);
+                    throw unexpectedUserInput(step, userMessage);
                 }
                 break;
             case EXACT_RETURN_DATE:
@@ -127,11 +129,17 @@ class TicketSearchDialogue {
                 builder.returnDateTo(userMessage);
                 step = Step.FINISHED;
                 break;
+            default:
+                throw new IllegalStateException("Unexpected enum value: " + step);
         }
         return new Answer(
                 step.question,
                 step.options
         );
+    }
+
+    private IllegalStateException unexpectedUserInput(Step step, String userMessage) {
+        return new IllegalStateException("Expected one of " + step.options + ", got " + userMessage);
     }
 
     private enum Step {
