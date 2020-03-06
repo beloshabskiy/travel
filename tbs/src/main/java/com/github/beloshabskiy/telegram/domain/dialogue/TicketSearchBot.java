@@ -5,11 +5,13 @@ import com.github.beloshabskiy.ticketsearch.rest.flight.FlightSearchResponse;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.session.Session;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -40,36 +42,51 @@ public class TicketSearchBot extends TelegramLongPollingSessionBot {
 
     @Override
     public void onUpdateReceived(Update update, Optional<Session> botSession) {
-        botSession.ifPresent(session -> {
-            TicketSearchDialogue dialogue = (TicketSearchDialogue) session.getAttribute(DIALOGUE_SESSION_KEY);
-            final String userInput = update.getMessage().getText();
-            if (dialogue == null || "/start".equals(userInput)) {
-                dialogue = new TicketSearchDialogue();
-                session.setAttribute("dialogue", dialogue);
-            }
-            log.info("Incoming message {} from {}, dialogue status: {}",
-                    update.getMessage().getText(),
-                    update.getMessage().getFrom(),
-                    dialogue.toString()
-            );
-            if (dialogue.isNotStarted()) {
-                sendMessage(update.getMessage(), dialogue.greeting());
-                sendMessage(update.getMessage(), dialogue.initiate());
-            } else if (!dialogue.isFinished()) {
-                final TicketSearchDialogue.Answer answer = dialogue.answer(userInput);
-                sendMessage(update.getMessage(), answer.getMessage(), answer.getOptions());
-            }
-            if (dialogue.isFinished()) {
-                final FlightSearchRequest request = dialogue.buildRequest();
-                final FlightSearchResponse response = tssClient.findTickets(request);
-                sendMessage(update.getMessage(), format(response));
-                session.setAttribute("dialogue", null);
-            }
-            log.info("Message from {} processed, dialogue status: {}",
-                    update.getMessage().getFrom().getUserName(),
-                    dialogue.toString()
-            );
-        });
+        MDC.clear();
+        Optional.of(update)
+                .map(Update::getMessage)
+                .map(Message::getFrom)
+                .map(User::getId)
+                .map(Object::toString)
+                .ifPresent(id -> MDC.put("user_id", id));
+        try {
+            botSession.ifPresent(session -> processUpdate(update, session));
+        } catch (Exception e) {
+            log.error("Can't process update {}", update, e);
+        } finally {
+            MDC.clear();
+        }
+    }
+
+    private void processUpdate(Update update, Session session) {
+        TicketSearchDialogue dialogue = (TicketSearchDialogue) session.getAttribute(DIALOGUE_SESSION_KEY);
+        final String userInput = update.getMessage().getText();
+        if (dialogue == null || "/start".equals(userInput)) {
+            dialogue = new TicketSearchDialogue();
+            session.setAttribute("dialogue", dialogue);
+        }
+        log.info("Incoming message {} from {}, dialogue status: {}",
+                update.getMessage().getText(),
+                update.getMessage().getFrom().getId(),
+                dialogue.toString()
+        );
+        if (dialogue.isNotStarted()) {
+            sendMessage(update.getMessage(), dialogue.greeting());
+            sendMessage(update.getMessage(), dialogue.initiate());
+        } else if (!dialogue.isFinished()) {
+            final TicketSearchDialogue.Answer answer = dialogue.answer(userInput);
+            sendMessage(update.getMessage(), answer.getMessage(), answer.getOptions());
+        }
+        if (dialogue.isFinished()) {
+            final FlightSearchRequest request = dialogue.buildRequest();
+            final FlightSearchResponse response = tssClient.findTickets(request);
+            sendMessage(update.getMessage(), format(response));
+            session.setAttribute("dialogue", null);
+        }
+        log.info("Message from {} processed, dialogue status: {}",
+                update.getMessage().getFrom().getUserName(),
+                dialogue.toString()
+        );
     }
 
     private String format(FlightSearchResponse response) {
